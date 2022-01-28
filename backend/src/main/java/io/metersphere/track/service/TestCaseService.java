@@ -154,6 +154,8 @@ public class TestCaseService {
     @Resource
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
+    private ProjectVersionService projectVersionService;
+    @Resource
     @Lazy
     private IssuesService issuesService;
     @Resource
@@ -347,12 +349,12 @@ public class TestCaseService {
                 testCase.setDemandName(null);
             }
             if (otherInfoConfig.isRelateIssue()) {
-                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCaseId, IssueRefType.FUNCTIONAL.name());
+                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCaseId);
                 if (CollectionUtils.isNotEmpty(issuesDaos)) {
                     issuesDaos.forEach(issue -> {
                         TestCaseIssues t = new TestCaseIssues();
                         t.setId(UUID.randomUUID().toString());
-                        t.setResourceId(testCase.getId());
+                        t.setTestCaseId(testCase.getId());
                         t.setIssuesId(issue.getId());
                         testCaseIssuesMapper.insertSelective(t);
                     });
@@ -425,7 +427,13 @@ public class TestCaseService {
                     .andProjectIdEqualTo(testCase.getProjectId())
                     .andNodePathEqualTo(nodePath)
                     .andTypeEqualTo(testCase.getType())
+//                    .andMaintainerEqualTo(testCase.getMaintainer())
                     .andPriorityEqualTo(testCase.getPriority());
+//                    .andMethodEqualTo(testCase.getMethod());
+
+//            if (StringUtils.isNotBlank(testCase.getNodeId())) {
+//                criteria.andNodeIdEqualTo(testCase.getTestId());
+//            }
 
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
@@ -860,12 +868,25 @@ public class TestCaseService {
             testCaseNames.add(testCase.getName());
         }
 
-        QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-        queryMemberRequest.setProjectId(projectId);
-        userIds = userService.getProjectMemberList(queryMemberRequest)
-                .stream()
-                .map(User::getId)
-                .collect(Collectors.toSet());
+        if (!request.isIgnore()) {
+            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+            queryMemberRequest.setProjectId(projectId);
+            userIds = userService.getProjectMemberList(queryMemberRequest)
+                    .stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
+        } else {
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria()
+                    .andGroupIdIn(groupIds)
+                    .andSourceIdEqualTo(project.getWorkspaceId());
+            userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
+        }
 
         try {
             //根据本地语言环境选择用哪种数据对象进行存放读取的数据
@@ -911,23 +932,12 @@ public class TestCaseService {
                 Integer num = importCreateNum.get();
                 Integer beforeInsertId = beforeImportCreateNum.get();
 
-                for (int i = testCases.size() - 1; i > -1; i--) { // 反向遍历，保持和文件顺序一致
+                for (int i = testCases.size() - 1; i > - 1; i--) { // 反向遍历，保持和文件顺序一致
                     TestCaseWithBLOBs testCase = testCases.get(i);
                     testCase.setId(UUID.randomUUID().toString());
                     testCase.setCreateUser(SessionUtils.getUserId());
                     testCase.setCreateTime(System.currentTimeMillis());
                     testCase.setUpdateTime(System.currentTimeMillis());
-                    if (StringUtils.isNotBlank(testCase.getNodePath())) {
-                        String[] modules = testCase.getNodePath().split("/");
-                        StringBuilder path = new StringBuilder();
-                        for (String module : modules) {
-                            if (StringUtils.isNotBlank(module)) {
-                                path.append("/");
-                                path.append(module.trim());
-                            }
-                        }
-                        testCase.setNodePath(path.toString());
-                    }
                     testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
                     testCase.setNum(num);
                     if (project.getCustomNum() && StringUtils.isBlank(testCase.getCustomNum())) {
@@ -1832,9 +1842,7 @@ public class TestCaseService {
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                 } else {
-                    if (StringUtils.isBlank(item.getMaintainer())) {
-                        item.setMaintainer(SessionUtils.getUserId());
-                    }
+                    item.setMaintainer(SessionUtils.getUserId());
                     EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editTestCaseRequest, item);
                     addTestCase(editTestCaseRequest);
@@ -1891,7 +1899,7 @@ public class TestCaseService {
         setDefaultOrder(request);
         List<TestCaseDTO> cases = extTestCaseMapper.listForMinder(request);
         List<String> caseIds = cases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
-        HashMap<String, List<IssuesDao>> issueMap = buildMinderIssueMap(caseIds, IssueRefType.FUNCTIONAL.name());
+        HashMap<String, List<IssuesDao>> issueMap = buildMinderIssueMap(caseIds);
         for (TestCaseDTO item : cases) {
             List<IssuesDao> issues = issueMap.get(item.getId());
             if (issues != null) {
@@ -1901,23 +1909,17 @@ public class TestCaseService {
         return cases;
     }
 
-    public HashMap<String, List<IssuesDao>> buildMinderIssueMap(List<String> caseIds, String refType) {
+    public HashMap<String, List<IssuesDao>> buildMinderIssueMap(List<String> caseIds) {
         HashMap<String, List<IssuesDao>> issueMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(caseIds)) {
-            List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds, refType);
+            List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds);
             for (IssuesDao item : issues) {
-                String key;
-                if (item.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
-                    key = item.getRefId();
-                } else {
-                    key = item.getResourceId();
-                }
-                List<IssuesDao> list = issueMap.get(key);
+                List<IssuesDao> list = issueMap.get(item.getCaseId());
                 if (list == null) {
                     list = new ArrayList<>();
                 }
                 list.add(item);
-                issueMap.put(key, list);
+                issueMap.put(item.getCaseId(), list);
             }
         }
         return issueMap;
@@ -2000,7 +2002,7 @@ public class TestCaseService {
             //关联缺陷
             List<String> issuesNames = new LinkedList<>();
             TestCaseIssuesExample testCaseIssuesExample = new TestCaseIssuesExample();
-            testCaseIssuesExample.createCriteria().andResourceIdEqualTo(bloBs.getId());
+            testCaseIssuesExample.createCriteria().andTestCaseIdEqualTo(bloBs.getId());
             List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(testCaseIssuesExample);
             if (CollectionUtils.isNotEmpty(testCaseIssues)) {
                 List<String> issuesIds = testCaseIssues.stream().map(TestCaseIssues::getIssuesId).collect(Collectors.toList());
@@ -2542,7 +2544,7 @@ public class TestCaseService {
         TestCaseWithBLOBs tc = getTestCase(caseId);
         if (tc != null) {
             if (StringUtils.isNotBlank(tc.getRemark()) || StringUtils.isNotBlank(tc.getDemandId()) || CollectionUtils.isNotEmpty(getRelateTest(caseId))
-                    || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId, IssueRefType.FUNCTIONAL.name())) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
+                    || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId)) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
                     || CollectionUtils.isNotEmpty(fileService.getFileMetadataByCaseId(caseId))) {
                 return true;
             }
