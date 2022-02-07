@@ -35,7 +35,7 @@ public class NotificationWebSocket {
     public void onOpen(@PathParam("userId") String userId, Session session) {
         Timer timer = new Timer(true);
         NotificationCenter task = new NotificationCenter(session, userId);
-        timer.schedule(task, 0, 10 * 1000);
+        timer.schedule(task, 0, 1000 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
 
