@@ -5,7 +5,7 @@
         <div class="content">
           <div class="title">
             <div class="title-img">
-              <img :src="'/display/file/loginLogo'" alt="">
+              <img :src="'logo-dark-MeterSphere.svg'" alt="">
             </div>
             <div class="welcome">
               <span>{{ $t("commons.welcome") }}</span>
@@ -13,15 +13,6 @@
           </div>
           <div class="form">
             <el-form :model="form" :rules="rules" ref="form">
-              <el-form-item v-slot:default>
-                <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
-                  <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
-                  <el-radio label="LOCAL" size="mini" v-if="openLdap">{{ $t('login.normal_Login') }}</el-radio>
-                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }}
-                    {{ auth.name }}
-                  </el-radio>
-                </el-radio-group>
-              </el-form-item>
               <el-form-item prop="username">
                 <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
                           autocomplete="off"/>
@@ -48,7 +39,7 @@
 
       <el-col :span="12">
         <div class="content">
-          <img class="login-image" :src="'/display/file/loginImage'" alt="">
+          <img class="login-image" :src="'info.png'" alt="">
         </div>
       </el-col>
 

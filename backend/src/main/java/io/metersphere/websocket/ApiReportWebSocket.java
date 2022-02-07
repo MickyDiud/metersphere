@@ -4,7 +4,7 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.SneakyThrows;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
