@@ -259,21 +259,24 @@ public class ServiceUtils {
                 })
                 .distinct()
                 .collect(Collectors.toList());
+        try {
+            Map<String, String> versionNameMap = projectVersionService.getProjectVersionByIds(versionIds).
+                    stream()
+                    .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
-        Map<String, String> versionNameMap = projectVersionService.getProjectVersionByIds(versionIds).
-                stream()
-                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
-
-        list.forEach(i -> {
-            Class<?> clazz = i.getClass();
-            try {
-                Method setVersionName = clazz.getMethod("setVersionName", String.class);
-                Method getVersionId = clazz.getMethod("getVersionId");
-                Object versionId = getVersionId.invoke(i);
-                setVersionName.invoke(i, versionNameMap.get(versionId));
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
-        });
+            list.forEach(i -> {
+                Class<?> clazz = i.getClass();
+                try {
+                    Method setVersionName = clazz.getMethod("setVersionName", String.class);
+                    Method getVersionId = clazz.getMethod("getVersionId");
+                    Object versionId = getVersionId.invoke(i);
+                    setVersionName.invoke(i, versionNameMap.get(versionId));
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            });
+        } catch (NullPointerException e) {
+            LogUtil.error(e);
+        }
     }
 }
