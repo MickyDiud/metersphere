@@ -25,8 +25,8 @@ alter table test_plan_load_case
 alter table test_plan_load_case
     add load_configuration longtext null;
 
-update test_case_node set name = '未规划用例' where name = '默认模块' and `level` = 1;
-update test_case set node_path = replace (`node_path`,'/默认模块','/未规划用例') where node_path like '/默认模块%';
+update test_case_node set name = '默认用例' where name = '默认模块' and `level` = 1;
+update test_case set node_path = replace (`node_path`,'/默认模块','/默认用例') where node_path like '/默认模块%';
 
 update api_module set name = '未规划接口' where name = '默认模块' and `level` = 1;
 update api_definition set module_path = replace (`module_path`,'/默认模块','/未规划接口') where module_path like '/默认模块%';

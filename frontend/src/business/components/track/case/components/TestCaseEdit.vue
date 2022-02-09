@@ -250,7 +250,7 @@ export default {
       form: {
         name: '',
         module: 'default-module',
-        nodePath: '/未规划用例',
+        nodePath: '/默认用例',
         maintainer: getCurrentUser().id,
         priority: 'P0',
         type: '',

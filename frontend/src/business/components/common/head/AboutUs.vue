@@ -30,7 +30,7 @@
     <el-row>
       <el-col class="version">
         <span>{{ $t('commons.version') }}:</span> &nbsp;
-        <span>{{version}}</span>
+        <span>{{msVersion}}</span>
       </el-col>
     </el-row>
 
@@ -46,7 +46,7 @@
         dialogVisible: false,
         githubUrl: 'https://github.com/metersphere/metersphere',
         websiteUrl: 'https://metersphere.io',
-        version: '1.0.1'
+        msVersion: '1.7.1'
       }
     },
     created() {

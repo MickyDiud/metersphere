@@ -8,7 +8,8 @@
               <img :src="'logo-dark-MeterSphere.svg'" alt="">
             </div>
             <div class="welcome">
-              <span>{{ $t("commons.welcome") }}</span>
+              <span>{{ $t("commons.welcome") }}</span><br />
+              {{ $t("commons.login_title") }}
             </div>
           </div>
           <div class="form">
