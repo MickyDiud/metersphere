@@ -29,6 +29,7 @@
           prop="principalName"
           :label="$t('test_track.plan.plan_principal')"
           show-overflow-tooltip
+          :min-width="100"
           :key="index">
         </el-table-column>
         <el-table-column
@@ -125,7 +126,7 @@
           prop="executionTimes"
           :label="$t('commons.execution_times')"
           show-overflow-tooltip
-          :min-width="100"
+          :min-width="135"
           :key="index">
         </el-table-column>
         <el-table-column
@@ -165,6 +166,7 @@
           prop="passRate"
           :label="$t('commons.pass_rate')"
           show-overflow-tooltip
+          :min-width="100"
           :key="index">
         </el-table-column>
         <el-table-column
@@ -173,7 +175,7 @@
           prop="plannedStartTime"
           :label="$t('test_track.plan.planned_start_time')"
           show-overflow-tooltip
-          :min-width="110"
+          :min-width="115"
           :key="index">
           <template v-slot:default="scope">
             <span>{{ scope.row.plannedStartTime | timestampFormatDate }}</span>
@@ -195,7 +197,7 @@
           v-if="item.id == 'actualStartTime'"
           sortable
           prop="actualStartTime"
-          :min-width="110"
+          :min-width="160"
           :label="$t('test_track.plan.actual_start_time')"
           show-overflow-tooltip
           :key="index">
@@ -206,7 +208,7 @@
         <el-table-column
           v-if="item.id == 'actualEndTime'"
           sortable
-          :min-width="110"
+          :min-width="155"
           prop="actualEndTime"
           :label="$t('test_track.plan.actual_end_time')"
           show-overflow-tooltip
@@ -383,6 +385,14 @@ export default {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     getPlanStageOption((data) => {
       this.stageOption = data;
+      if (this.stageOption.length > 0 ){
+        this.stageFilters = this.stageOption;
+        this.stageFilters.forEach((stage,index)=>{
+          if (stage.system != null && stage.system){
+            stage.text = this.$t(stage.text);
+          }
+        })
+      }
     });
     this.initTableData();
   },
