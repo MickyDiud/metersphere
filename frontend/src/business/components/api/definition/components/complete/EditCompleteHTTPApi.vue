@@ -105,7 +105,7 @@
         <div class="base-info mock-info">
           <el-row>
             <el-col :span="20">
-              Mock地址：
+              {{ $t('test_track.plan_view.mock_address') }}：
               <el-link :href="getUrlPrefix" target="_blank" style="color: black"
                        type="primary">{{ this.getUrlPrefix }}
               </el-link>
@@ -420,7 +420,7 @@ export default {
       return getCurrentUser();
     },
     openHis() {
-      this.$refs.changeHistory.open(this.httpForm.id, ["接口定义", "接口定義", "Api definition"]);
+      this.$refs.changeHistory.open(this.httpForm.id, ["接口定义", "接口定义", "Api definition"]);
     },
     mockSetting() {
       if (this.basisData.id) {
