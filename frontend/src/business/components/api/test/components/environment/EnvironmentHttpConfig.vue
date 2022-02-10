@@ -60,7 +60,7 @@
             {{ getUrl(row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="100px">
+        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="140px">
           <template v-slot:default="{row}">
             {{ getName(row) }}
           </template>
