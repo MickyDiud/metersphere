@@ -428,6 +428,7 @@ export default {
     sync_other_info: "復製以下信息到新版本",
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
+    resource_loading: '資源切換中...'
   },
   login: {
     normal_Login: "普通登錄",
@@ -2235,6 +2236,7 @@ export default {
       component: "組件",
       base_info: "基礎信息",
       mock_info: "Mock服務",
+      mock_address: "Mock地址",
       test_result: "測試結果",
       result_distribution: "測試結果分布",
       custom_component: "自定義模塊",

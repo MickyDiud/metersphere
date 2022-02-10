@@ -429,6 +429,7 @@ export default {
     sync_other_info: "复制以下信息到新版本",
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
+    resource_loading: '资源切换中...'
   },
   login: {
     normal_Login: "普通登录",
@@ -2237,6 +2238,7 @@ export default {
       component: "组件",
       base_info: "基础信息",
       mock_info: "Mock服务",
+      mock_address: "Mock地址",
       test_result: "测试结果",
       result_distribution: "测试结果分布",
       custom_component: "自定义模块",

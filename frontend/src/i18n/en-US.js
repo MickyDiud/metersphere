@@ -427,6 +427,7 @@ export default {
     sync_other_info: "Copy other config",
     delete_current_version: 'Current version',
     delete_all_version: 'All versions',
+    resource_loading: 'Loading...'
   },
   login: {
     normal_Login: "Normal Login",
@@ -2232,6 +2233,7 @@ export default {
       component: "component",
       base_info: "Base info",
       mock_info: "Mock service",
+      mock_address: "Mock address",
       test_result: "Test result",
       result_distribution: "Result distribution",
       custom_component: "Custom",
