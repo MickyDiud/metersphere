@@ -457,9 +457,8 @@ export default {
       this.$refs['httpForm'].validate((valid) => {
         if (valid) {
           this.setParameter();
-
           if (!this.httpForm.versionId) {
-            if (this.$refs.versionHistory) {
+            if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
