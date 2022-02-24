@@ -42,4 +42,4 @@ VALUES (uuid(), (SELECT id FROM test_resource_pool WHERE name LIKE 'LOCAL'),
 INSERT INTO test_case_report_template (id, name, content)
 VALUES (uuid(), 'default', '{\"components\": [1,2,3,4,5]}');
 INSERT INTO system_parameter (param_key, param_value, type, sort)
-VALUES ('default.language', 'zh_CN', 'text', 5);
+VALUES ('default.language', 'en-US', 'text', 5);
