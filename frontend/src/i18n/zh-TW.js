@@ -71,6 +71,7 @@ export default {
     input_limit: '長度在 {0} 到 {1} 個字符',
     login: '登錄',
     welcome: '一站式開源持續測試平臺',
+    login_title: '',
     theme_color: '主題色',
     username: '姓名',
     password: '密碼',
